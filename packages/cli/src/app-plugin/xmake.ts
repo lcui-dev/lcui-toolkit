@@ -9,7 +9,7 @@ export function runXMake({ logger, options, changedOutputs }: CompilerInstance) 
     return;
   }
   if (options.skipXMake) {
-    logger.info("Skip xmake (--skip-xmake).");
+    logger.info("Skipped xmake because --skip-xmake was specified.");
     return;
   }
   if (changedOutputs.size === 0) {
