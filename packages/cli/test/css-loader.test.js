@@ -21,19 +21,41 @@ describe("css-loader — tailwindcss integration", () => {
     assert.ok(fs.existsSync(cssHPath), `expected css-loader to emit ${cssHPath}`);
     const cssH = fs.readFileSync(cssHPath, "utf-8");
 
-    // 1. 头文件骨架仍在：css-loader 应当生成 `static const char *css_str_global = ...`
-    assert.match(cssH, /static const char \*css_str_global\s*=/);
+    // 1. CSS 段保存在内联加载函数的独立 chunks 数组中（每项包含 chunk 与字节长度）。
+    assert.match(cssH, /static inline void ui_load_css_string_global_chunks\(void\)/);
+    assert.match(cssH, /static const struct \{/);
+    assert.match(cssH, /const char \*chunk;/);
+    assert.match(cssH, /size_t length;/);
+    assert.match(cssH, /\} css_str_global_chunks\[\] = \{/);
+    assert.doesNotMatch(cssH, /css_str_global_chunk_lengths/);
+    assert.match(cssH, /static const size_t css_str_global_total_length = \d+;/);
+    assert.match(cssH, /ui_load_css_string\(css, "global\.css"\);/);
+    assert.strictEqual((cssH.match(/ui_load_css_string\(/g) ?? []).length, 1);
+    assert.doesNotMatch(cssH, /ui_load_css_string_chunks\(/);
+    assert.doesNotMatch(cssH, /strlen\s*\(/);
+    const chunksMatch = cssH.match(/\} css_str_global_chunks\[\] = \{([\s\S]*?)^\s*\};/m);
+    assert.ok(chunksMatch, "expected the inline loader to contain a chunks array");
+    const compiledCss = chunksMatch[1]
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.startsWith("{"))
+      .map((entry) => {
+        const match = entry.match(/^\{\s*("(?:\\.|[^"\\])*")\s*,\s*\d+\s*\},?$/);
+        assert.ok(match, `unexpected chunk entry: ${entry}`);
+        return JSON.parse(match[1]);
+      })
+      .join("");
 
     // 2. tailwind 必须把 @tailwind / @apply 全部消除掉
     //    （这是判定 tailwindcss 是否真正工作的最关键依据）
-    assert.doesNotMatch(cssH, /@tailwind\b/);
-    assert.doesNotMatch(cssH, /@apply\b/);
+    assert.doesNotMatch(compiledCss, /@tailwind\b/);
+    assert.doesNotMatch(compiledCss, /@apply\b/);
 
     // 3. 用户重点指定的 h4 规则必须被展开为真实 CSS 属性
     //    text-xl → font-size; font-bold → font-weight:700;
     //    text-gray-900 → color; mb-2 → margin-bottom
     //    用宽松正则跨 tailwind 小版本兼容。
-    const h4BlockMatch = cssH.match(/h4\s*\{([\s\S]*?)\}/);
+    const h4BlockMatch = compiledCss.match(/h4\s*\{([\s\S]*?)\}/);
     assert.ok(h4BlockMatch, "expected an h4 { ... } block in generated CSS");
     const h4Block = h4BlockMatch[1];
     assert.match(h4Block, /font-size\s*:/);
@@ -43,6 +65,6 @@ describe("css-loader — tailwindcss integration", () => {
 
     // 4. postcss-rem-to-px 已生效：所有 tailwind 默认产出的 rem 数值
     //    都应该被转换成 px，产物里不应再出现 rem 单位。
-    assert.doesNotMatch(cssH, /\d(?:\.\d+)?rem\b/);
+    assert.doesNotMatch(compiledCss, /\d(?:\.\d+)?rem\b/);
   });
 });

@@ -3,6 +3,7 @@ import postcss, { Message } from "postcss";
 import postcssUrl from "postcss-url";
 import postcssModules from "postcss-modules";
 import postcssrc from "postcss-load-config";
+import { splitCssIntoChunks } from "./css-string-chunks.js";
 import { Loader, LoaderContext, ModuleMetadata, toError } from "../types.js";
 
 interface CSSLoaderOptions {
@@ -76,16 +77,23 @@ const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
     }
   }
 
-  const ident = `css_str_${path.parse(this.resourcePath).name.replace(/[^a-zA-Z0-9]/g, "_")}`;
+  const resourceIdent = path.parse(this.resourcePath).name.replace(/[^a-zA-Z0-9]/g, "_");
+  const chunksIdent = `css_str_${resourceIdent}_chunks`;
+  const totalLengthIdent = `css_str_${resourceIdent}_total_length`;
+  const loadFunctionIdent = `ui_load_css_string_${resourceIdent}_chunks`;
+  const {
+    chunks: cssChunks,
+    lengths: cssChunkLengths,
+    totalLength: cssTotalLength,
+  } = splitCssIntoChunks(result.css);
+  const sourceName = path.relative(loader.context, loader.resourcePath);
 
   const metadata: ModuleMetadata = {
     type: "asset",
     path: loader.resourcePath,
     outputPath: loader.resourceOutputPath,
     headerFiles: ["<ui.h>", `"${loader.resourceOutputPath}"`],
-    initCode: `ui_load_css_string(${ident}, ${JSON.stringify(
-      path.relative(loader.context, loader.resourcePath)
-    )});`,
+    initCode: `${loadFunctionIdent}();`,
   };
   await loader.generateModule(loader.resourcePath, () => {
     const metadataStr = JSON.stringify(metadata, null, 2);
@@ -101,23 +109,41 @@ const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
     return metadataLine + `export default ${JSON.stringify(result.css)};\n`;
   });
 
-  const cssStr = JSON.stringify(
-    `${result.css}`
-      .split("\n")
-      .map((line) => line.trimEnd())
-      .join("\n")
-  )
-    .split("\\n")
-    .join("\\\n");
-
   return [
     `/** Generated from: ${path.relative(
       path.dirname(this.resourceOutputPath),
       this.resourcePath
     )} */`,
-    `static const char *${ident} = "\\`,
-    `${cssStr.substring(1, cssStr.length - 1)}\\`,
-    '";\n',
+    "#include <stddef.h>",
+    "#include <stdlib.h>",
+    "#include <string.h>",
+    `static const struct {`,
+    "        const char *chunk;",
+    "        size_t length;",
+    `} ${chunksIdent}[] = {`,
+    cssChunks
+      .map((chunk, index) => `        { ${JSON.stringify(chunk)}, ${cssChunkLengths[index]} },`)
+      .join("\n"),
+    "};",
+    `static const size_t ${totalLengthIdent} = ${cssTotalLength};`,
+    `static inline void ${loadFunctionIdent}(void)`,
+    "{",
+    "        size_t i;",
+    `        char *css = malloc(${totalLengthIdent} + 1);`,
+    "        char *dest;",
+    "",
+    "        if (!css) {",
+    "                return;",
+    "        }",
+    "        dest = css;",
+    `        for (i = 0; i < sizeof(${chunksIdent}) / sizeof(${chunksIdent}[0]); ++i) {`,
+    `                memcpy(dest, ${chunksIdent}[i].chunk, ${chunksIdent}[i].length);`,
+    `                dest += ${chunksIdent}[i].length;`,
+    "        }",
+    `        css[${totalLengthIdent}] = 0;`,
+    `        ui_load_css_string(css, ${JSON.stringify(sourceName)});`,
+    "        free(css);",
+    "}",
   ].join("\n");
 };
 
