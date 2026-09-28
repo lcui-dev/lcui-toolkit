@@ -3,12 +3,16 @@ import path from "path";
 
 const fonts = [
   {
-    className: "fui-icon-filled",
+    selector: ".fui-icon.fui-icon-filled",
     name: "FluentSystemIcons-Filled",
+    outputName: "icons-filled",
+    style: "filled",
   },
   {
-    className: "fui-icon-regular",
+    selector: ".fui-icon",
     name: "FluentSystemIcons-Regular",
+    outputName: "icons",
+    style: "regular",
   },
 ];
 
@@ -22,6 +26,7 @@ interface IconComponent {
 
 interface IconProps extends WidgetProps {
   className?: string;
+  size?: number;
   fontSize?: number;
   style?: React.CSSProperties;
 }
@@ -31,11 +36,11 @@ interface IconExProps extends IconProps {
   filled?: boolean;
 }
 
-function clsx(...args) {
+function clsx(...args: Array<string | undefined>) {
   return args.filter(Boolean).join(' ');
 }
 
-export function Icon({ className, name, filled, fontSize, style, ...props }: IconExProps) {
+export function Icon({ className, name, filled, size, fontSize, style, ...props }: IconExProps) {
   const iconData = iconMap[name];
   const error = <text>unknown icon: {name}</text>;
 
@@ -45,25 +50,50 @@ export function Icon({ className, name, filled, fontSize, style, ...props }: Ico
 
   const styleName = filled ? 'filled' : 'regular';
   const codeMap = iconData[styleName];
-
-  if (!codeMap) {
-    return error;
+  const availableSizes = Object.keys(codeMap).map(Number).sort((a, b) => a - b);
+  if (availableSizes.length === 0) {
+    throw new Error('Icon "' + name + '" has no ' + styleName + ' glyph available');
   }
 
-  const sizeList = Object.keys(codeMap).map(Number).sort();
-  const size = (fontSize && sizeList.filter((s) => s >= fontSize)[0]) || sizeList[0];
-  const code = codeMap[size];
+  const requestedSize = typeof size === 'number' ? size : 24;
+  if (filled && requestedSize === 24 && !codeMap[24]) {
+    throw new Error('Icon "' + name + '" has no filled 24px glyph available');
+  }
+  let glyphSizeClass: string | undefined;
+  if (requestedSize !== 24) {
+    if (codeMap[requestedSize]) {
+      glyphSizeClass = 'fui-icon-glyph-' + requestedSize;
+    } else {
+      console.warn(
+        'Icon "' + name + '" has no ' + styleName + ' ' + requestedSize +
+        'px glyph; using its base glyph'
+      );
+    }
+  }
+  const visualSize = glyphSizeClass ? requestedSize : 24;
+  const renderedFontSize =
+    typeof fontSize === 'number'
+      ? fontSize
+      : typeof size === 'number'
+        ? visualSize
+        : undefined;
   return (
     <text
-      className={clsx(\`fui-icon-\${styleName}\`, className)}
+      className={clsx(
+        'fui-icon',
+        'fui-icon-' + name,
+        filled ? 'fui-icon-filled' : undefined,
+        glyphSizeClass,
+        className
+      )}
       style={{
-        fontSize: typeof fontSize === 'number' ? \`\${fontSize || size}px\` : undefined,
+        ...(typeof renderedFontSize === 'number'
+          ? { fontSize: renderedFontSize + 'px' }
+          : {}),
         ...style
       }}
       {...props}
-    >
-      {String.fromCodePoint(code)}
-    </text>
+    />
   );
 }
 
@@ -88,76 +118,170 @@ function outputFile(filePath, content) {
   });
 }
 
-function convert(fontsDirPath) {
+function getSortedSizes(codeMap) {
+  return Object.keys(codeMap).map(Number).sort((a, b) => a - b);
+}
+
+function getDefaultRegularSize(codeMap) {
+  const sizes = getSortedSizes(codeMap);
+  if (sizes.includes(24)) {
+    return 24;
+  }
+  if (sizes.length === 0) {
+    return null;
+  }
+  return sizes.reduce((best, size) => {
+    const distance = Math.abs(size - 24);
+    const bestDistance = Math.abs(best - 24);
+    return distance < bestDistance || (distance === bestDistance && size < best)
+      ? size
+      : best;
+  });
+}
+
+function generateRule(selector, code) {
+  return `.${selector} {\n  content: "\\${code.toString(16)}";\n}`;
+}
+
+function generateSemanticRules(name, icon, style) {
+  const rules = [];
+  const selector = `fui-icon.fui-icon-${name}`;
+  const regularSizes = getSortedSizes(icon.regular);
+  const filledSizes = getSortedSizes(icon.filled);
+
+  if (style === "regular") {
+    const defaultSize = getDefaultRegularSize(icon.regular);
+    if (defaultSize !== null) {
+      rules.push(generateRule(selector, icon.regular[defaultSize]));
+    }
+    regularSizes
+      .filter((size) => size !== 24)
+      .forEach((size) =>
+        rules.push(generateRule(`${selector}.fui-icon-glyph-${size}`, icon.regular[size]))
+      );
+    return rules;
+  }
+
+  if (icon.filled[24] !== undefined) {
+    rules.push(generateRule(`${selector}.fui-icon-filled`, icon.filled[24]));
+  }
+  filledSizes
+    .filter((size) => size !== 24)
+    .forEach((size) =>
+      rules.push(
+        generateRule(
+          `${selector}.fui-icon-filled.fui-icon-glyph-${size}`,
+          icon.filled[size]
+        )
+      )
+    );
+  return rules;
+}
+
+function generateStyleRules(iconMap, style) {
+  return Object.keys(iconMap)
+    .sort()
+    .map((name) => {
+      const icon = iconMap[name];
+      const semanticRules = generateSemanticRules(name, icon, style);
+      return semanticRules.length > 0 ? [`/* ${name} */`, ...semanticRules].join("\n") : "";
+    })
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function createIconMap(fontData) {
   const iconMap = {};
-  const iconCssOutput = [];
+  fontData.forEach(({ jsonData }) => {
+    Object.keys(jsonData)
+      .sort()
+      .forEach((key) => {
+        const match = key.match(/^ic_fluent_(.+)_(\d+)_(regular|filled)$/);
+        if (!match) {
+          throw new Error(`Unexpected Fluent icon key: ${key}`);
+        }
+        const code = jsonData[key];
+        const name = match[1].replace(/_/g, "-");
+        if (name === "filled" || /^glyph-\d+$/.test(name)) {
+          throw new Error(
+            `Icon name "${name}" is reserved because it conflicts with a modifier class`
+          );
+        }
+        const size = Number(match[2]);
+        const style = match[3];
+
+        // wchar_t type occupies 2 bytes on supported targets.
+        if (code > 0xffff) {
+          console.warn(
+            `Ignored ${name}-${size}-${style} because its codepoint ${code} has exceeded the maximum value of wchar_t type`
+          );
+          return;
+        }
+        if (!iconMap[name]) {
+          iconMap[name] = {
+            regular: {},
+            filled: {},
+          };
+        }
+        iconMap[name][style][size] = code;
+      });
+  });
+  return iconMap;
+}
+
+function convert(fontsDirPath) {
   const iconTsxOutput = ['import React, { WidgetProps } from "@lcui/react";'];
+  const fontData = fonts.map((font) => {
+    const jsonFile = path.join(fontsDirPath, `${font.name}.json`);
+    const jsonData = JSON.parse(fs.readFileSync(jsonFile, { encoding: "utf-8" }));
+    const mainCss = [
+      "@font-face {",
+      `  font-family: "${font.name}";`,
+      `  src: url("${font.outputName}.ttf");`,
+      "}\n",
+      `${font.selector} {`,
+      `  font-family: "${font.name}";`,
+      ...(font.style === "regular" ? ["  font-size: 24px;"] : []),
+      "  font-style: normal;",
+      "}\n",
+      ...(font.style === "filled"
+        ? [".fui-icon {", "  font-size: 24px;", "}\n"]
+        : []),
+    ].join("\n");
+    return { font, jsonData, mainCss };
+  });
+
+  const iconMap = createIconMap(fontData);
   if (!fs.existsSync("dist")) {
     fs.mkdirSync("dist");
   }
   if (!fs.existsSync("src")) {
     fs.mkdirSync("src");
   }
-  fonts.forEach((font) => {
-    const jsonFile = path.join(fontsDirPath, `${font.name}.json`);
-    const jsonData = JSON.parse(fs.readFileSync(jsonFile, { encoding: "utf-8" }));
-    const iconList = Object.keys(jsonData)
-      .sort()
-      .map((key) => ({
-        code: jsonData[key],
-        name: key.replace("ic_fluent_", "").replace(/_/g, "-"),
-      }));
-    const mainCss = [
-      "@font-face {",
-      `  font-family: "${font.name}";`,
-      `  src: url("${font.name}.ttf");`,
-      "}\n",
-      `.${font.className} {`,
-      `  font-family: "${font.name}";`,
-      "  font-style: normal;",
-      "}\n",
-    ].join("\n");
-    const fullCss = `${mainCss}\n${iconList
-      .map(({ code, name }) => `.${name} {\n  content: "\\${code.toString(16)}";\n}`)
-      .join("\n")}`;
+  [
+    "style.css",
+    "FluentSystemIcons-Regular.css",
+    "FluentSystemIcons-Filled.css",
+    "FluentSystemIcons-Regular.ttf",
+    "FluentSystemIcons-Filled.ttf",
+  ].forEach((name) => {
+    const staleOutputPath = path.join("dist", name);
+    if (fs.existsSync(staleOutputPath)) {
+      fs.unlinkSync(staleOutputPath);
+    }
+  });
 
-    iconCssOutput.push(mainCss);
-
-    iconList.forEach((icon) => {
-      // wchar_t 类型占用 2 字节，因此字符码不能大于它的最大值
-      if (icon.code > 0xffff) {
-        console.warn(
-          `Ignored ${icon.name} because its codepoint ${icon.code} has exceeded the maximum value of wchar_t type`
-        );
-        return;
-      }
-      const list = icon.name.replace("-regular|-filled", "").split("-");
-      const style = icon.name.includes("-filled") ? "filled" : "regular";
-      const size = list[list.length - 2];
-      const name = list.slice(0, list.length - 2).join("-");
-      if (!iconMap[name]) {
-        iconMap[name] = {
-          regular: {},
-          filled: {},
-          hasFilledStyle: false,
-          hasRegularStyle: false,
-        };
-      }
-      iconMap[name][style][size] = icon.code;
-      if (style === "regular") {
-        iconMap[name].hasRegularStyle = true;
-      } else {
-        iconMap[name].hasFilledStyle = true;
-      }
-    });
-
-    outputFile(path.join("dist", `${font.name}.css`), `${fullCss}\n`);
-    console.log(`output ${path.join("dist", `${font.name}.ttf`)}`);
+  fontData.forEach(({ font, mainCss }) => {
+    const outputName = font.outputName;
+    const fullCss = [mainCss, generateStyleRules(iconMap, font.style)].join("\n");
+    outputFile(path.join("dist", `${outputName}.css`), `${fullCss}\n`);
+    console.log(`output ${path.join("dist", `${outputName}.ttf`)}`);
     fs.copyFileSync(
       path.join(fontsDirPath, `${font.name}.ttf`),
-      path.join("dist", `${font.name}.ttf`)
+      path.join("dist", `${outputName}.ttf`)
     );
   });
+
   iconTsxOutput.push(`\nconst iconMap = ${JSON.stringify(iconMap, null, 2)};`, iconFileMain);
   Object.keys(iconMap)
     .sort()
@@ -170,7 +294,6 @@ function convert(fontsDirPath) {
         iconTsxOutput.push(generateIconCode(`${ident}Filled`, key, true));
       }
     });
-  outputFile(path.join("dist", "style.css"), iconCssOutput.join("\n"));
   outputFile(path.join("src", "index.tsx"), iconTsxOutput.join("\n"));
 }
 

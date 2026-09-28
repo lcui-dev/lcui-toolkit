@@ -1,0 +1,5 @@
+---
+"@lcui/fluent-icons": minor
+---
+
+BREAKING CHANGE: Fluent icon CSS and font assets use the semantic `icons.css`, `icons-filled.css`, `icons.ttf`, and `icons-filled.ttf` outputs. Regular uses `.fui-icon`; the former standalone `.fui-icon-filled` font selector is replaced by `.fui-icon.fui-icon-filled`, where `fui-icon-filled` is a modifier token. The old `.fui-icon-regular` font class, `style.css`, `FluentSystemIcons-{Regular,Filled}.{css,ttf}` paths, and `.name-<size>-<style>` glyph classes are removed. Migrate to `.fui-icon.fui-icon-<name>`, optionally adding `.fui-icon-filled` and `.fui-icon-glyph-<N>`; all glyph selectors are scoped beneath `.fui-icon`. Fluent names `filled` and `glyph-<digits>` are reserved to avoid modifier-token collisions. Native Lucide uses `.lucide-icon` and `lucide-icon-<name>` / `lucide-icon-glyph-<N>` classes; it has no filled style and remains regular when `filled=true`. This intentional breaking change uses a minor Changeset while keeping major version 2 because the package has few users.

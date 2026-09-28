@@ -15,7 +15,7 @@
     "prebuild": "node scripts/fetch-fonts.mjs",
     "convert": "node scripts/convert.js fonts",
     "build": "npm run convert && tsc",
-    "test": "echo \"no tests\" && exit 0"
+    "test": "npm run convert && tsc -p tsconfig.json && node --test"
   },
   "repository": {
     "type": "git",
