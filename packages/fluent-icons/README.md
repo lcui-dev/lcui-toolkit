@@ -45,6 +45,8 @@ export default function MyComonent() {
 
 There are two styles of icons: Regular and Filled. Regular is the default style, so use `AccessTime` rather than `AccessTimeRegular`. The default glyph is regular 24; when an icon has no regular 24 glyph, the closest available regular size is used (ties choose the smaller size). Icons with no supported regular glyph report that style as unavailable, though a supported filled glyph may still be used. `size` selects a design glyph size and, when explicitly set, also sets the rendered size. `fontSize` overrides only the rendered size; if neither is specified, the CSS default applies and can be overridden by `className` styles.
 
+The package also exports the typed `iconMap`, keyed by kebab-case icon names, with `regular` and `filled` size-to-codepoint maps. It is intended for compile-time catalogues and tooling; render icons through `Icon` so the matching CSS glyph and font styles stay synchronized.
+
 If you don't like this usage, you can also use only the `Icon` component:
 
 ```tsx

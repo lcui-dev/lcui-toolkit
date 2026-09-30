@@ -50,6 +50,9 @@ function runConverter(t, regular, filled) {
       : "",
     regularFontExists: fs.existsSync(path.join(cwd, "dist", "icons.ttf")),
     filledFontExists: fs.existsSync(path.join(cwd, "dist", "icons-filled.ttf")),
+    generatedTsx: fs.existsSync(path.join(cwd, "src", "index.tsx"))
+      ? fs.readFileSync(path.join(cwd, "src", "index.tsx"), "utf8")
+      : "",
     legacyFontFilesExist:
       fs.existsSync(path.join(cwd, "dist", "FluentSystemIcons-Regular.css")) ||
       fs.existsSync(path.join(cwd, "dist", "FluentSystemIcons-Filled.css")) ||
@@ -117,6 +120,21 @@ test("uses shared Fluent font classes for regular and filled styles", (t) => {
   assert.doesNotMatch(output.regularCss, /\.fui-icon-regular\b/);
   assert.match(output.filledCss, /\.fui-icon-filled\b/);
 });
+
+test("exports the generated icon map for compile-time icon browsers", (t) => {
+  const output = runConverter(
+    t,
+    { ic_fluent_checkmark_24_regular: 0xe001 },
+    { ic_fluent_checkmark_24_filled: 0xe101 }
+  );
+
+  assert.equal(output.result.status, 0, output.result.stderr);
+  assert.match(output.generatedTsx, /export const iconMap = \{/);
+  assert.match(output.generatedTsx, /export interface IconData/);
+  assert.match(output.generatedTsx, /as const satisfies Readonly<Record<string, IconData>>/);
+  assert.doesNotMatch(output.generatedTsx, /hasRegularStyle|hasFilledStyle/);
+  assert.match(output.regularCss, /\.fui-icon \{[^}]*font-size: 24px;/);
+  assert.match(output.filledCss, /\.fui-icon \{[^}]*font-size: 24px;/);
 });
 
 test("groups all regular and filled rules by icon name", (t) => {

@@ -45,6 +45,8 @@ export default function MyComonent() {
 
 图标有 Regular 和 Filled 两种风格。Regular 是默认风格，使用 `AccessTime` 即可，无需写成 `AccessTimeRegular`。默认字形为 regular 24；如果某图标没有 regular 24，则使用最接近的可用 regular 尺寸（距离相同时选较小尺寸）。如果某图标没有可用的 regular 字形，则请求该风格时会报告不可用，但仍可使用它实际支持的 filled 字形。`size` 选择设计字形尺寸，显式设置时也会设置显示字号；`fontSize` 只覆盖显示字号。不传这两个属性时使用 CSS 默认字号，可由 `className` 绑定的样式覆盖。
 
+包同时导出有类型定义的 `iconMap`，以 kebab-case 图标名为键，包含 `regular` 和 `filled` 两组尺寸到 codepoint 的映射，供编译期图标目录和工具使用。实际渲染请使用 `Icon`，以保持 CSS 字形和字体风格同步。
+
 如果你不喜欢这种用法，也可以只用 `Icon` 组件：
 
 ```tsx

@@ -17,7 +17,13 @@ const fonts = [
 ];
 
 const iconFileMain = `
-type IconName = keyof typeof iconMap;
+/** Glyph codepoints keyed by design size for each style. */
+export interface IconData {
+  readonly regular: Readonly<Record<number, number>>;
+  readonly filled: Readonly<Record<number, number>>;
+}
+
+export type IconName = keyof typeof iconMap;
 
 interface IconComponent {
   (props: IconProps): React.JSX.Element;
@@ -282,15 +288,18 @@ function convert(fontsDirPath) {
     );
   });
 
-  iconTsxOutput.push(`\nconst iconMap = ${JSON.stringify(iconMap, null, 2)};`, iconFileMain);
+  iconTsxOutput.push(
+    `\nexport const iconMap = ${JSON.stringify(iconMap, null, 2)} as const satisfies Readonly<Record<string, IconData>>;`,
+    iconFileMain
+  );
   Object.keys(iconMap)
     .sort()
     .forEach((key) => {
       const ident = key.split("-").map(capitalizeFirstLetter).join("");
-      if (iconMap[key].hasRegularStyle) {
+      if (Object.keys(iconMap[key].regular).length > 0) {
         iconTsxOutput.push(generateIconCode(ident, key));
       }
-      if (iconMap[key].hasFilledStyle) {
+      if (Object.keys(iconMap[key].filled).length > 0) {
         iconTsxOutput.push(generateIconCode(`${ident}Filled`, key, true));
       }
     });

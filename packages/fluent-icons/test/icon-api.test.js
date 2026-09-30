@@ -69,3 +69,13 @@ test("per-icon exports delegate to CSS-backed Icon without glyph text", () => {
   assert.equal(element.type.name, "Icon");
   assert.equal(element.props.children, undefined);
 });
+
+test("exports a minimal typed icon map without internal style flags", async () => {
+  const { iconMap } = await import("../dist/index.js");
+  const checkmark = iconMap.checkmark;
+
+  assert.equal(typeof checkmark.regular[24], "number");
+  assert.equal(typeof checkmark.filled[24], "number");
+  assert.equal("hasRegularStyle" in checkmark, false);
+  assert.equal("hasFilledStyle" in checkmark, false);
+});
