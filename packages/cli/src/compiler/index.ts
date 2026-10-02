@@ -269,6 +269,7 @@ export default async function compile(file: string, compilerOptions: CompilerOpt
   const options: CompilerOptions = {
     ...getDirs(),
     clean: !file,
+    isFullBuild: !file,
     ...compilerOptions,
   };
   const logFile = path.join(options.buildDir, "compile.log");

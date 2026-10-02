@@ -22,4 +22,22 @@ describe("xmake plugin", () => {
       fs.removeSync(rootContext);
     }
   });
+
+  it("does not run xmake for a single-file compilation", () => {
+    const rootContext = fs.mkdtempSync(path.join(os.tmpdir(), "lcui-cli-xmake-"));
+    const messages = [];
+    fs.writeFileSync(path.join(rootContext, "xmake.lua"), "");
+
+    try {
+      runXMake({
+        logger: { info: (message) => messages.push(message) },
+        options: { rootContext, isFullBuild: false },
+        changedOutputs: new Set([path.join(rootContext, "app", "global.css.h")]),
+      });
+
+      assert.deepStrictEqual(messages, ["Skip xmake for single-file compilation."]);
+    } finally {
+      fs.removeSync(rootContext);
+    }
+  });
 });

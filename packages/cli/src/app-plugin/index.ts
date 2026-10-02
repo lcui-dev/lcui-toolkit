@@ -29,7 +29,7 @@ export default class AppPlugin {
       const components = componentsCompiler.compile();
 
       componentsCompiler.saveCache();
-      if (!fs.existsSync(mainSourceFile)) {
+      if (compiler.options.isFullBuild && !fs.existsSync(mainSourceFile)) {
         if (
           writeIfChanged(
             mainSourceFile,
@@ -52,6 +52,7 @@ ${router.initCode.map((line) => `        ${line}`).join("\n")}
         }
       }
       if (
+        compiler.options.isFullBuild &&
         writeIfChanged(
           mainHeaderFile,
           `#include <locale.h>

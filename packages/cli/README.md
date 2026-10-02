@@ -54,6 +54,10 @@ Compile a single file:
 lcui build app/page.tsx
 ```
 
+Single-file builds compile only the specified file and its dependencies. They do not
+generate or update the project-level `main.c` and `main.h`, or invoke xmake; use
+`lcui build` to build the whole project and emit those files.
+
 ### Incremental build
 
 `lcui build` is incremental by default. A build manifest is persisted at

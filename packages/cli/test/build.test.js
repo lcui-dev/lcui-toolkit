@@ -30,6 +30,7 @@ describe("compile (build) — non-AppRouter project (no app/ directory)", () => 
 
     // AppPlugin 把 main.c / main.h 写到 sourceDir
     const mainH = fs.readFileSync(path.join(fixtureDir, "src", "main.h"), "utf-8");
+    assert.ok(fs.existsSync(path.join(fixtureDir, "src", "main.c")));
     assert.match(mainH, /ui_register_greeting\(\);/);
 
     // 非 AppRouter：main.h 不含任何 router 相关代码

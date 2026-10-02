@@ -12,6 +12,10 @@ export function runXMake({ logger, options, changedOutputs }: CompilerInstance) 
     logger.info("Skipped xmake because --skip-xmake was specified.");
     return;
   }
+  if (!options.isFullBuild) {
+    logger.info("Skip xmake for single-file compilation.");
+    return;
+  }
   if (changedOutputs.size === 0) {
     logger.info("No outputs changed, skip xmake.");
     return;

@@ -56,6 +56,9 @@ lcui build
 lcui build app/page.tsx
 ```
 
+单文件构建只编译指定文件及其依赖，不会生成或更新项目级的 `main.c` 和
+`main.h`，也不会调用 xmake。需要生成这些文件时，请使用 `lcui build` 完整构建项目。
+
 ### 增量编译
 
 `lcui build` 默认是增量的。编译器会在 `.lcui/build/manifest.json` 持久化一份

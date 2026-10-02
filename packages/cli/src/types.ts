@@ -25,6 +25,8 @@ export interface Module extends Record<string, unknown> {
 export interface CompilerOptions {
   verbose?: boolean;
   clean?: boolean;
+  /** Whether this invocation builds the whole project and emits project-level main files. */
+  isFullBuild?: boolean;
   /**
    * 忽略 build manifest，强制重编所有文件。
    * 等价于先删除 .lcui/build/manifest.json 再 build。
