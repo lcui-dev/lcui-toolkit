@@ -247,12 +247,13 @@ function convert(fontsDirPath) {
       "}\n",
       `${font.selector} {`,
       `  font-family: "${font.name}";`,
-      ...(font.style === "regular" ? ["  font-size: 24px;"] : []),
       "  font-style: normal;",
+      // Icon fonts expose hhea ascender=1em/descender=0, so glyph ink sits
+      // above the font-box center and renders ~0.5-1.5px high in centered
+      // lines; nudge down 1px like Bootstrap's `.glyphicon { top: 1px }`.
+      "  position: relative;",
+      "  top: 1px;",
       "}\n",
-      ...(font.style === "filled"
-        ? [".fui-icon {", "  font-size: 24px;", "}\n"]
-        : []),
     ].join("\n");
     return { font, jsonData, mainCss };
   });

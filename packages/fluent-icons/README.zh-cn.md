@@ -43,7 +43,7 @@ export default function MyComonent() {
 }
 ```
 
-图标有 Regular 和 Filled 两种风格。Regular 是默认风格，使用 `AccessTime` 即可，无需写成 `AccessTimeRegular`。默认字形为 regular 24；如果某图标没有 regular 24，则使用最接近的可用 regular 尺寸（距离相同时选较小尺寸）。如果某图标没有可用的 regular 字形，则请求该风格时会报告不可用，但仍可使用它实际支持的 filled 字形。`size` 选择设计字形尺寸，显式设置时也会设置显示字号；`fontSize` 只覆盖显示字号。不传这两个属性时使用 CSS 默认字号，可由 `className` 绑定的样式覆盖。
+图标有 Regular 和 Filled 两种风格。Regular 是默认风格，使用 `AccessTime` 即可，无需写成 `AccessTimeRegular`。默认字形为 regular 24；如果某图标没有 regular 24，则使用最接近的可用 regular 尺寸（距离相同时选较小尺寸）。如果某图标没有可用的 regular 字形，则请求该风格时会报告不可用，但仍可使用它实际支持的 filled 字形。`size` 选择设计字形尺寸，显式设置时也会设置显示字号；`fontSize` 只覆盖显示字号。不传这两个属性时图标继承周围的文字字号（LCUI 会将 `font-size` 沿部件树向下传递），仍可用 `className` 或 `style` 覆盖。
 
 包同时导出有类型定义的 `iconMap`，以 kebab-case 图标名为键，包含 `regular` 和 `filled` 两组尺寸到 codepoint 的映射，供编译期图标目录和工具使用。实际渲染请使用 `Icon`，以保持 CSS 字形和字体风格同步。
 
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 }
 ```
 
-**破坏性变更：** 旧 `style.css`、`FluentSystemIcons-{Regular,Filled}.{css,ttf}` 路径、`.fui-icon-regular` 字体类和 `.name-<size>-<style>` 字形类已移除。原本单独指定字体的 `.fui-icon-filled` selector 改为 `.fui-icon.fui-icon-filled`；`fui-icon-filled` 类 token 现在作为 modifier，与 `.fui-icon` 基类组合使用。请引入 `icons.css` 和/或 `icons-filled.css`；图标名类为 `fui-icon-<name>`，设计字形尺寸类为 `fui-icon-glyph-<N>`。字形选择器均限定在 `.fui-icon` 下，因此业务侧的 `.add` 等通用类不会触发图标规则。图标名 `filled` 和 `glyph-<digits>` 为 modifier 保留名。React Icon 组件会自动生成这些类。Native Lucide 使用 `.lucide-icon`、`lucide-icon-<name>` 和可选的 `lucide-icon-glyph-<N>`，不支持 filled。`size` 选择设计字形，并在显式设置时同步设置显示字号；`fontSize` 只覆盖最终显示字号。不传这两个属性时使用 CSS 默认字号，可通过类样式覆盖。由于当前使用者较少，本次发布仍保留 major 2；本版本不向后兼容。缺少的非默认风格/尺寸组合不会伪造回退字形：React Icon 保持基础状态并输出警告；请求不存在的 filled 24 字形则报错。
+**破坏性变更：** 旧 `style.css`、`FluentSystemIcons-{Regular,Filled}.{css,ttf}` 路径、`.fui-icon-regular` 字体类和 `.name-<size>-<style>` 字形类已移除。原本单独指定字体的 `.fui-icon-filled` selector 改为 `.fui-icon.fui-icon-filled`；`fui-icon-filled` 类 token 现在作为 modifier，与 `.fui-icon` 基类组合使用。请引入 `icons.css` 和/或 `icons-filled.css`；图标名类为 `fui-icon-<name>`，设计字形尺寸类为 `fui-icon-glyph-<N>`。字形选择器均限定在 `.fui-icon` 下，因此业务侧的 `.add` 等通用类不会触发图标规则。图标名 `filled` 和 `glyph-<digits>` 为 modifier 保留名。React Icon 组件会自动生成这些类。Native Lucide 使用 `.lucide-icon`、`lucide-icon-<name>` 和可选的 `lucide-icon-glyph-<N>`，不支持 filled。`size` 选择设计字形，并在显式设置时同步设置显示字号；`fontSize` 只覆盖最终显示字号。不传这两个属性时图标继承父级字号，可通过类样式覆盖。由于当前使用者较少，本次发布仍保留 major 2；本版本不向后兼容。缺少的非默认风格/尺寸组合不会伪造回退字形：React Icon 保持基础状态并输出警告；请求不存在的 filled 24 字形则报错。
 
 之后，手动复制 `node_modules/@lcui/fluent-icons/dist` 目录内的 css 和 ttf 文件到应用程序工作目录内。
 

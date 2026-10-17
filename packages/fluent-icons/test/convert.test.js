@@ -133,8 +133,8 @@ test("exports the generated icon map for compile-time icon browsers", (t) => {
   assert.match(output.generatedTsx, /export interface IconData/);
   assert.match(output.generatedTsx, /as const satisfies Readonly<Record<string, IconData>>/);
   assert.doesNotMatch(output.generatedTsx, /hasRegularStyle|hasFilledStyle/);
-  assert.match(output.regularCss, /\.fui-icon \{[^}]*font-size: 24px;/);
-  assert.match(output.filledCss, /\.fui-icon \{[^}]*font-size: 24px;/);
+  assert.doesNotMatch(output.regularCss, /font-size:/);
+  assert.doesNotMatch(output.filledCss, /font-size:/);
 });
 
 test("groups all regular and filled rules by icon name", (t) => {
