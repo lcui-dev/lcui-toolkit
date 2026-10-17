@@ -10,6 +10,44 @@ interface CSSLoaderOptions {
   modules?: boolean;
 }
 
+/**
+ * 移除 CSS 注释，同时保留字符串字面量中的 "/*" 文本。
+ *
+ * LCUI 的 CSS 解析器不支持注释：注释会被当成属性名的一部分，
+ * 进而输出 "value type not defined" 之类的错误。
+ */
+function stripComments(css: string): string {
+  let result = "";
+  let quote = "";
+  for (let i = 0; i < css.length; i++) {
+    const char = css[i];
+    if (quote) {
+      result += char;
+      if (char === "\\") {
+        result += css[++i] ?? "";
+      } else if (char === quote) {
+        quote = "";
+      }
+      continue;
+    }
+    if (char === '"' || char === "'") {
+      quote = char;
+      result += char;
+    } else if (char === "\\") {
+      result += char + (css[++i] ?? "");
+    } else if (char === "/" && css[i + 1] === "*") {
+      const end = css.indexOf("*/", i + 2);
+      if (end === -1) {
+        break;
+      }
+      i = end + 1;
+    } else {
+      result += char;
+    }
+  }
+  return result;
+}
+
 const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
   this: LoaderContext,
   content
@@ -77,6 +115,11 @@ const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
     }
   }
 
+  // LCUI 的 CSS 解析器不支持注释：注释会被当成属性名的一部分，
+  // 进而输出 "value type not defined" 之类的错误。因此在所有插件处理完成后
+  // 从最终 CSS 中移除注释（包括选择器、属性值和 raws 中保留的行内注释）。
+  const css = stripComments(result.css);
+
   const resourceIdent = path.parse(this.resourcePath).name.replace(/[^a-zA-Z0-9]/g, "_");
   const chunksIdent = `css_str_${resourceIdent}_chunks`;
   const totalLengthIdent = `css_str_${resourceIdent}_total_length`;
@@ -85,7 +128,7 @@ const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
     chunks: cssChunks,
     lengths: cssChunkLengths,
     totalLength: cssTotalLength,
-  } = splitCssIntoChunks(result.css);
+  } = splitCssIntoChunks(css);
   const sourceName = path.relative(loader.context, loader.resourcePath);
 
   const metadata: ModuleMetadata = {
@@ -106,7 +149,7 @@ const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
       const cssExportTokens = cssExport ? cssExport.exportTokens : {};
       return metadataLine + `export default ${JSON.stringify(cssExportTokens, null, 2)};\n`;
     }
-    return metadataLine + `export default ${JSON.stringify(result.css)};\n`;
+    return metadataLine + `export default ${JSON.stringify(css)};\n`;
   });
 
   return [

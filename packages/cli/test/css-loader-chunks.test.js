@@ -15,11 +15,13 @@ describe("css-loader — chunked C strings", () => {
     this.timeout(60000);
     ensureLcuiReact(fixtureDir);
     cleanGenerated(fixtureDir, "app");
-    const css = "/* non-ascii: café, backslash: \\\\ */\r\n" +
+    const css =
+      '.unicode { content: "café, backslash: \\\\"; }\r\n' +
       Array.from(
-      { length: 20 },
-      (_, index) => `.chunk-${index} { content: "${"x".repeat(3860)}"; }${index === 0 ? "\r\n" : "\n"}`
-    ).join("");
+        { length: 20 },
+        (_, index) =>
+          `.chunk-${index} { content: "${"x".repeat(3860)}"; }${index === 0 ? "\r\n" : "\n"}`
+      ).join("");
     fs.writeFileSync(globalCssPath, css);
   });
 
@@ -73,7 +75,13 @@ describe("css-loader — chunked C strings", () => {
     const lengths = chunkEntries.map((entry) => entry.length);
     const sassCss = sass.compileString(fs.readFileSync(globalCssPath, "utf-8")).css;
     const postcssResult = await postcss()
-      .use(postcssUrl({ async url(asset) { return asset.url; } }))
+      .use(
+        postcssUrl({
+          async url(asset) {
+            return asset.url;
+          },
+        })
+      )
       .process(sassCss, { from: globalCssPath })
       .async();
     assert.strictEqual(chunks.join(""), postcssResult.css);
@@ -87,7 +95,10 @@ describe("css-loader — chunked C strings", () => {
     const totalLength = Number(
       cssH.match(/static const size_t css_str_global_total_length = (\d+);/)[1]
     );
-    assert.strictEqual(totalLength, lengths.reduce((total, length) => total + length, 0));
+    assert.strictEqual(
+      totalLength,
+      lengths.reduce((total, length) => total + length, 0)
+    );
   });
 
   it("emits zero-length metadata for an empty stylesheet", async function () {
@@ -103,6 +114,31 @@ describe("css-loader — chunked C strings", () => {
     assert.strictEqual((cssH.match(/ui_load_css_string\(css,/g) ?? []).length, 1);
   });
 
+  it("strips comments from the generated CSS string", async function () {
+    this.timeout(60000);
+    fs.writeFileSync(
+      globalCssPath,
+      "/* leading comment */\r\n" +
+        ".comment-test {\r\n" +
+        "  /* inner comment */\r\n" +
+        "  color: red; /* inline comment */\r\n" +
+        "  padding: 0 /* value comment */ 1px;\r\n" +
+        '  content: "/* kept text */";\r\n' +
+        "}\r\n"
+    );
+    cleanGenerated(fixtureDir, "app");
+    await withCwd(fixtureDir, () => compile(undefined, {}));
+
+    const cssH = fs.readFileSync(path.join(fixtureDir, "app", "global.css.h"), "utf-8");
+    assert.doesNotMatch(cssH, /leading comment/);
+    assert.doesNotMatch(cssH, /inner comment/);
+    assert.doesNotMatch(cssH, /inline comment/);
+    assert.doesNotMatch(cssH, /value comment/);
+    assert.match(cssH, /\.comment-test/);
+    // 字符串值里的 "/* ... */" 是普通文本，必须保留
+    assert.match(cssH, /\/\* kept text \*\//);
+  });
+
   it("preserves CSS Modules class exports", async function () {
     this.timeout(60000);
     const pagePath = path.join(fixtureDir, "app", "page.tsx");
@@ -110,7 +146,7 @@ describe("css-loader — chunked C strings", () => {
     fs.writeFileSync(
       pagePath,
       'import styles from "./theme.module.css";\n' +
-        'export default function Page() { return <div className={styles.title}>Home</div>; }\n'
+        "export default function Page() { return <div className={styles.title}>Home</div>; }\n"
     );
     try {
       cleanGenerated(fixtureDir, "app");
