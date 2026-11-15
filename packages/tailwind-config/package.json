@@ -1,0 +1,32 @@
+{
+  "name": "@lcui/tailwind-config",
+  "version": "0.1.0",
+  "description": "Shared Tailwind CSS v3 config, design tokens and plugins for LCUI projects",
+  "license": "MIT",
+  "author": "Liu <lc-soft@live.cn>",
+  "homepage": "https://github.com/lcui-dev/lcui-toolkit/tree/develop/packages/tailwind-config#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lcui-dev/lcui-toolkit.git",
+    "directory": "packages/tailwind-config"
+  },
+  "bugs": {
+    "url": "https://github.com/lcui-dev/lcui-toolkit/issues"
+  },
+  "main": "index.cjs",
+  "files": [
+    "index.cjs",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "tailwindcss": "^3.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "lcui",
+    "tailwindcss",
+    "design-tokens"
+  ]
+}
