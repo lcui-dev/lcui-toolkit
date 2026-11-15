@@ -1,6 +1,6 @@
 {
   "name": "@lcui/tailwind-config",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shared Tailwind CSS v3 config, design tokens and plugins for LCUI projects",
   "license": "MIT",
   "author": "Liu <lc-soft@live.cn>",

@@ -1,5 +1,18 @@
 ## [1.0.4](https://gitee.com/lcui-dev/fluent-ui-system-icons/compare/v1.0.3...v1.0.4) (2025-01-27)
 
+## 2.1.0
+
+### Minor Changes
+
+- 3e9bd1d: Export the typed `iconMap`, keyed by kebab-case icon names with `regular` and `filled` size-to-codepoint maps. It is intended for compile-time catalogues and tooling; render icons through `Icon` so the matching CSS glyph and font styles stay synchronized.
+- 39e334b: BREAKING CHANGE: Fluent icon CSS and font assets use the semantic `icons.css`, `icons-filled.css`, `icons.ttf`, and `icons-filled.ttf` outputs. Regular uses `.fui-icon`; the former standalone `.fui-icon-filled` font selector is replaced by `.fui-icon.fui-icon-filled`, where `fui-icon-filled` is a modifier token. The old `.fui-icon-regular` font class, `style.css`, `FluentSystemIcons-{Regular,Filled}.{css,ttf}` paths, and `.name-<size>-<style>` glyph classes are removed. Migrate to `.fui-icon.fui-icon-<name>`, optionally adding `.fui-icon-filled` and `.fui-icon-glyph-<N>`; all glyph selectors are scoped beneath `.fui-icon`. Fluent names `filled` and `glyph-<digits>` are reserved to avoid modifier-token collisions. Native Lucide uses `.lucide-icon` and `lucide-icon-<name>` / `lucide-icon-glyph-<N>` classes; it has no filled style and remains regular when `filled=true`. This intentional breaking change uses a minor Changeset while keeping major version 2 because the package has few users.
+
+### Patch Changes
+
+- 3e9bd1d: Icons now inherit the surrounding `font-size` instead of forcing 24px, and glyphs are nudged down 1px so icon fonts sit centered in their line box.
+- Updated dependencies [3e9bd1d]
+  - @lcui/react@0.7.0
+
 ## 2.0.0
 
 ### Major Changes

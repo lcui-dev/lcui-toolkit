@@ -1,5 +1,16 @@
 # [0.5.0](https://gitee.com/lcui-dev/react/compare/v0.4.0...v0.5.0) (2025-01-07)
 
+## 0.7.0
+
+### Minor Changes
+
+- 3e9bd1d: Require Node.js 22 and upgrade the runtime dependencies.
+  
+  - `@lcui/cli` now requires `node >=22`; chalk, change-case, postcss-modules, postcss-load-config and TypeScript move to their next major versions.
+  - Plain `.css` files now go straight to `css-loader` instead of running through `sass-loader`, so Sass-only syntax in a `.css` file is no longer accepted.
+  - `@lcui/react` targets React 19: `peerDependencies.react` is now `^19.0.0`.
+  - Tailwind CSS stays on v3 because LCUI's CSS engine cannot evaluate the custom properties and `var()` chains that v4 emits.
+
 ## 0.6.0
 
 ### Minor Changes
