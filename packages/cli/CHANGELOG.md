@@ -1,5 +1,29 @@
 ## [1.2.2](https://github.com/lc-ui/lcui-cli/compare/v1.2.1...v1.2.2) (2025-01-26)
 
+## 2.0.0
+
+### Major Changes
+
+- 3e9bd1d: Require Node.js 22 and upgrade the runtime dependencies.
+  
+  - `@lcui/cli` now requires `node >=22`; chalk, change-case, postcss-modules, postcss-load-config and TypeScript move to their next major versions.
+  - Plain `.css` files now go straight to `css-loader` instead of running through `sass-loader`, so Sass-only syntax in a `.css` file is no longer accepted.
+  - `@lcui/react` targets React 19: `peerDependencies.react` is now `^19.0.0`.
+  - Tailwind CSS stays on v3 because LCUI's CSS engine cannot evaluate the custom properties and `var()` chains that v4 emits.
+
+### Minor Changes
+
+- 92b5b3d: Generated `*.css.h` files now split large CSS strings into bounded chunks. Each chunk and its UTF-8 byte length are stored together in a single struct array, avoiding C compiler limits on string literal size while keeping generated headers compact.
+
+### Patch Changes
+
+- 3e9bd1d: Building a specific file no longer generates or updates the project-level `main.c` / `main.h` and no longer runs xmake. Those outputs are kept for full project builds only, so a single-file build cannot leak state into the next build.
+- 3e9bd1d: Make the `--skip-xmake` build message state that xmake was skipped by request rather than by failure.
+- 3e9bd1d: Upgrade the runtime `simple-git` dependency to 4.x to pick up the patched dependency chain.
+- 2818666: Strip comments from the CSS strings emitted by `css-loader`. LCUI's CSS parser treats comment text as part of the following property name, which produced errors such as `[css-parser] ... value type not defined`.
+- Updated dependencies [3e9bd1d]
+  - @lcui/react@0.7.0
+
 ## 1.3.0
 
 ### Minor Changes
