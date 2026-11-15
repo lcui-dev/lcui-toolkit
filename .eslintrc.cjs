@@ -62,7 +62,10 @@ module.exports = {
       rules: {
         "no-fallthrough": "off",
         "prefer-const": "warn",
-        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/no-restricted-types": "off",
+        "@typescript-eslint/no-unsafe-function-type": "off",
+        "@typescript-eslint/no-wrapper-object-types": "off",
+        "@typescript-eslint/no-empty-object-type": "off",
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/triple-slash-reference": "off",
       },
