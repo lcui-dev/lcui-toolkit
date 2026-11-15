@@ -27,6 +27,7 @@ packages/cli/test/fixtures/*/project/
 packages/fluent-icons/src/
 
 # Misc
+.superpowers/
 CHANGELOG.md
 *.zip
 *.tgz

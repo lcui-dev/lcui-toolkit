@@ -121,7 +121,7 @@ function transformNodeChildren(node: Node, rawChildren: ReactNode) {
         if (isValidElement(child)) {
           isPureText = false;
           if (child.type === JSXObjectBinding) {
-            children.push(child.props.value);
+            children.push((child.props as { value: ObjectBinding }).value);
           } else {
             needFormat = false;
             children.push(child);

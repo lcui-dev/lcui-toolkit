@@ -8,6 +8,7 @@
  * The h4 rule below is required by the test assertions.
  */
 
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 

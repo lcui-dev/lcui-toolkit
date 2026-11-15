@@ -144,8 +144,7 @@ const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
     if (modules) {
       // postcss-modules 通过 message.type === "export" 提供 exportTokens
       const cssExport = result.messages.find((m) => m.type === "export") as
-        | (Message & { exportTokens: Record<string, string> })
-        | undefined;
+        (Message & { exportTokens: Record<string, string> }) | undefined;
       const cssExportTokens = cssExport ? cssExport.exportTokens : {};
       return metadataLine + `export default ${JSON.stringify(cssExportTokens, null, 2)};\n`;
     }

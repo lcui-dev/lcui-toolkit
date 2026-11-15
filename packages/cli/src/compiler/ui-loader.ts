@@ -207,7 +207,7 @@ async function compile(
   }
 
   function allocWidgetNodeIdent(node: ResourceNode): string {
-    let ident = "";
+    let ident: string;
     const attrs = (node.attributes || {}) as Record<string, unknown>;
     const widgetType = ["w", "widget"].includes(node.name) ? attrs.type : node.name;
 

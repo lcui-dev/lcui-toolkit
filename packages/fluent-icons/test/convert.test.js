@@ -23,14 +23,8 @@ function runConverter(t, regular, filled) {
     "FluentSystemIcons-Regular.ttf",
     "FluentSystemIcons-Filled.ttf",
   ].forEach((file) => fs.writeFileSync(path.join(distDir, file), "stale generated output"));
-  fs.writeFileSync(
-    path.join(fontsDir, "FluentSystemIcons-Regular.json"),
-    JSON.stringify(regular)
-  );
-  fs.writeFileSync(
-    path.join(fontsDir, "FluentSystemIcons-Filled.json"),
-    JSON.stringify(filled)
-  );
+  fs.writeFileSync(path.join(fontsDir, "FluentSystemIcons-Regular.json"), JSON.stringify(regular));
+  fs.writeFileSync(path.join(fontsDir, "FluentSystemIcons-Filled.json"), JSON.stringify(filled));
   fs.writeFileSync(path.join(fontsDir, "FluentSystemIcons-Regular.ttf"), "");
   fs.writeFileSync(path.join(fontsDir, "FluentSystemIcons-Filled.ttf"), "");
 
@@ -157,12 +151,9 @@ test("groups all regular and filled rules by icon name", (t) => {
   assert.equal(output.result.status, 0, output.result.stderr);
   const alphaRegularEnd = output.regularCss.indexOf(".fui-icon.fui-icon-zeta {");
   assert.ok(alphaRegularEnd > output.regularCss.indexOf(".fui-icon-alpha.fui-icon-glyph-48"));
-  const alphaFilledEnd = output.filledCss.indexOf(
-    ".fui-icon.fui-icon-zeta.fui-icon-filled {"
-  );
+  const alphaFilledEnd = output.filledCss.indexOf(".fui-icon.fui-icon-zeta.fui-icon-filled {");
   assert.ok(
-    alphaFilledEnd >
-      output.filledCss.indexOf(".fui-icon-alpha.fui-icon-filled.fui-icon-glyph-48")
+    alphaFilledEnd > output.filledCss.indexOf(".fui-icon-alpha.fui-icon-filled.fui-icon-glyph-48")
   );
   assert.doesNotMatch(output.regularCss, /\.(?:alpha|zeta)-[0-9]+-regular\b/);
   assert.doesNotMatch(output.filledCss, /\.(?:alpha|zeta)-[0-9]+-filled\b/);
@@ -228,7 +219,11 @@ test("emits CSS deterministically regardless of font JSON property order", (t) =
     ["ic_fluent_checkmark_24_filled", 0xe101],
     ["ic_fluent_checkmark_48_filled", 0xe102],
   ];
-  const first = runConverter(t, Object.fromEntries(regularEntries), Object.fromEntries(filledEntries));
+  const first = runConverter(
+    t,
+    Object.fromEntries(regularEntries),
+    Object.fromEntries(filledEntries)
+  );
   const second = runConverter(
     t,
     Object.fromEntries(regularEntries.toReversed()),

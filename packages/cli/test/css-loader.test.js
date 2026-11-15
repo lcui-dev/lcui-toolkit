@@ -59,7 +59,7 @@ describe("css-loader — tailwindcss integration", () => {
     assert.ok(h4BlockMatch, "expected an h4 { ... } block in generated CSS");
     const h4Block = h4BlockMatch[1];
     assert.match(h4Block, /font-size\s*:/);
-    assert.match(h4Block, /font-weight\s*:\s*700/);
+    assert.match(h4Block, /font-weight\s*:\s*(?:700|var\(--font-weight-bold\))/);
     assert.match(h4Block, /color\s*:/);
     assert.match(h4Block, /margin-bottom\s*:/);
 

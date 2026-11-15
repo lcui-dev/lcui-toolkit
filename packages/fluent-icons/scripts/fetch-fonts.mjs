@@ -57,7 +57,6 @@ async function download(file) {
 
 try {
   for (const file of files) {
-    // eslint-disable-next-line no-await-in-loop
     await download(file);
   }
 } catch (err) {

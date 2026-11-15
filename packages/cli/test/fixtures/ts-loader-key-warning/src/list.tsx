@@ -1,10 +1,8 @@
 export default function List() {
-  const items = ["a", "b", "c"];
+  const props = { key: "a" };
   return (
     <div>
-      {items.map((x) => (
-        <div>{x}</div>
-      ))}
+      <div {...props}>a</div>
     </div>
   );
 }

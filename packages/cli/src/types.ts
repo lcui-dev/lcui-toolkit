@@ -179,7 +179,6 @@ export type Loader<TIn = LoaderInput, TOut = LoaderInput | void> = (
  * 异构 loader 集合中使用的宽松类型。
  * loaderMap、ResolvedLoaderRule 等"装载不同形态 loader 的容器"使用它。
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyLoader = Loader<any, any>;
 
 export type ResolvedLoaderRule = {
@@ -225,7 +224,6 @@ export function toError(e: unknown): Error {
  * 表示错误已被 emitError 报告过、上层不需要重复输出。
  */
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   interface Error {
     isReported?: boolean;
   }

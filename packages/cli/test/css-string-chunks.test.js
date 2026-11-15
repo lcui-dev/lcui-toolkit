@@ -3,7 +3,7 @@ import { splitCssIntoChunks } from "../lib/compiler/css-string-chunks.js";
 
 describe("splitCssIntoChunks", () => {
   it("should leave short CSS in one unchanged chunk", () => {
-    const css = ".a { content: \"quote\\\" and slash\\\\\"; }";
+    const css = '.a { content: "quote\\" and slash\\\\"; }';
     const { chunks } = splitCssIntoChunks(css);
 
     assert.deepStrictEqual(chunks, [css]);

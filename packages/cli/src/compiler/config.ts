@@ -19,10 +19,22 @@ export default {
       {
         test: (filePath: string) => {
           const { name, ext } = path.parse(filePath);
+          return !name.startsWith("_") && name.endsWith(".module") && ext === ".css";
+        },
+        use: [
+          {
+            loader: "css-loader",
+            options: {
+              modules: true,
+            },
+          },
+        ],
+      },
+      {
+        test: (filePath: string) => {
+          const { name, ext } = path.parse(filePath);
           return (
-            !name.startsWith("_") &&
-            name.endsWith(".module") &&
-            [".css", ".scss", ".sass"].includes(ext)
+            !name.startsWith("_") && name.endsWith(".module") && [".scss", ".sass"].includes(ext)
           );
         },
         use: [
@@ -38,10 +50,15 @@ export default {
       {
         test: (filePath: string) => {
           const { name, ext } = path.parse(filePath);
+          return !name.startsWith("_") && !name.endsWith(".module") && ext === ".css";
+        },
+        use: ["css-loader"],
+      },
+      {
+        test: (filePath: string) => {
+          const { name, ext } = path.parse(filePath);
           return (
-            !name.startsWith("_") &&
-            !name.endsWith(".module") &&
-            [".css", ".scss", ".sass"].includes(ext)
+            !name.startsWith("_") && !name.endsWith(".module") && [".scss", ".sass"].includes(ext)
           );
         },
         use: ["css-loader", "sass-loader"],

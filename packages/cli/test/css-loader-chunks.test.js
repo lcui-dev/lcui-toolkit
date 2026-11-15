@@ -3,7 +3,6 @@ import fs from "fs-extra";
 import path from "path";
 import postcss from "postcss";
 import postcssUrl from "postcss-url";
-import * as sass from "sass";
 import compile from "../lib/compiler/index.js";
 import { fixturesDir, withCwd, ensureLcuiReact, cleanGenerated } from "./helpers.js";
 
@@ -73,7 +72,6 @@ describe("css-loader — chunked C strings", () => {
     });
     const chunks = chunkEntries.map((entry) => entry.chunk);
     const lengths = chunkEntries.map((entry) => entry.length);
-    const sassCss = sass.compileString(fs.readFileSync(globalCssPath, "utf-8")).css;
     const postcssResult = await postcss()
       .use(
         postcssUrl({
@@ -82,7 +80,7 @@ describe("css-loader — chunked C strings", () => {
           },
         })
       )
-      .process(sassCss, { from: globalCssPath })
+      .process(fs.readFileSync(globalCssPath, "utf-8"), { from: globalCssPath })
       .async();
     assert.strictEqual(chunks.join(""), postcssResult.css);
     assert.ok(chunks.length >= 20, `expected a chunk per rule, got ${chunks.length}`);

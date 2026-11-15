@@ -125,7 +125,9 @@ function outputFile(filePath, content) {
 }
 
 function getSortedSizes(codeMap) {
-  return Object.keys(codeMap).map(Number).sort((a, b) => a - b);
+  return Object.keys(codeMap)
+    .map(Number)
+    .sort((a, b) => a - b);
 }
 
 function getDefaultRegularSize(codeMap) {
@@ -139,9 +141,7 @@ function getDefaultRegularSize(codeMap) {
   return sizes.reduce((best, size) => {
     const distance = Math.abs(size - 24);
     const bestDistance = Math.abs(best - 24);
-    return distance < bestDistance || (distance === bestDistance && size < best)
-      ? size
-      : best;
+    return distance < bestDistance || (distance === bestDistance && size < best) ? size : best;
   });
 }
 
@@ -175,10 +175,7 @@ function generateSemanticRules(name, icon, style) {
     .filter((size) => size !== 24)
     .forEach((size) =>
       rules.push(
-        generateRule(
-          `${selector}.fui-icon-filled.fui-icon-glyph-${size}`,
-          icon.filled[size]
-        )
+        generateRule(`${selector}.fui-icon-filled.fui-icon-glyph-${size}`, icon.filled[size])
       )
     );
   return rules;

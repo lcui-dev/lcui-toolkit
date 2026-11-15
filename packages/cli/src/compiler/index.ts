@@ -860,7 +860,6 @@ export default async function compile(file: string, compilerOptions: CompilerOpt
   } catch (err) {
     logger.error("Compilation failed!");
     logger.error(`For more details, please refer to the log file: ${logFile}`);
-    void err;
-    throw new Error("Compilation failed!");
+    throw new Error("Compilation failed!", { cause: err });
   }
 }
