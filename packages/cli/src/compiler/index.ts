@@ -12,7 +12,7 @@ import UILoader from "./ui-loader.js";
 import XMLLoader from "./xml-loader.js";
 import YAMLLoader from "./yaml-loader.js";
 import JSONLoader from "./json-loader.js";
-import { resolveRootDir } from "../utils.js";
+import { resolveRootDir, toPosixPath } from "../utils.js";
 import { writeIfChanged, hashContent, hashFile, hashJSON } from "./fs-cache.js";
 import { BuildManifest, ManifestEntry, ManifestOutput, hashConfig } from "./build-manifest.js";
 import {
@@ -160,7 +160,7 @@ function resolveModuleExt(modulePath: string): string {
 }
 
 function isNodeModulePath(name: string): boolean {
-  const { root, dir } = path.parse(name.replace(/\\|\//g, "/"));
+  const { root, dir } = path.parse(toPosixPath(name));
   return !root && dir !== "." && dir !== ".." && !dir.startsWith(`./`) && !dir.startsWith(`../`);
 }
 
@@ -172,7 +172,7 @@ function isNodeModulePath(name: string): boolean {
  * - UNC 路径（\\server\share\...）暂按 server/share/... 摊平。
  */
 function flattenAbsolutePath(p: string): string {
-  const norm = p.replace(/\\/g, "/");
+  const norm = toPosixPath(p);
   const drive = /^([a-zA-Z]):(.*)$/.exec(norm);
   if (drive) {
     return `${drive[1].toUpperCase()}/${drive[2].replace(/^\/+/, "")}`;

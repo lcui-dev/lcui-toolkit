@@ -4,7 +4,7 @@ import { pathToFileURL } from "url";
 import ts from "typescript";
 import React from "react";
 import { snakeCase } from "change-case-all";
-import { getResourceLoaderName, parsePageRoute } from "../utils.js";
+import { getResourceLoaderName, parsePageRoute, toPosixPath } from "../utils.js";
 import { LoaderContext, LoaderInput, Module } from "../types.js";
 
 function isComponentFunc(name: string) {
@@ -95,9 +95,9 @@ export default async function TsLoader(this: LoaderContext, content: LoaderInput
             if (!rel.startsWith(".") && !rel.startsWith("..")) {
               rel = `.${path.sep}${rel}`;
             }
-            rewritten = rel.replace(/\\|\//g, "/");
+            rewritten = toPosixPath(rel);
           } else {
-            rewritten = modulePath.replace(/\\|\//g, "/");
+            rewritten = toPosixPath(modulePath);
           }
 
           return ts.factory.updateImportDeclaration(

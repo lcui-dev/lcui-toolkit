@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { CompilerOptions, ComponentConfig } from "../types.js";
+import { toPosixPath } from "../utils.js";
 import { writeIfChanged } from "../compiler/fs-cache.js";
 
 export class AppComponentsCompiler {
@@ -47,9 +48,11 @@ export class AppComponentsCompiler {
     return {
       includeCode: componentList.map(
         (c) =>
-          `#include "${path.relative(
-            path.dirname(this.mainHeaderFile),
-            path.join(this.options.rootContext, c.headerFilePath)
+          `#include "${toPosixPath(
+            path.relative(
+              path.dirname(this.mainHeaderFile),
+              path.join(this.options.rootContext, c.headerFilePath)
+            )
           )}"`
       ),
       initCode: [

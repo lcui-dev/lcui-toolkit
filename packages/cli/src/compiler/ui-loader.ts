@@ -1,5 +1,5 @@
 import path from "path";
-import { getResourceLoaderName, toIdent } from "../utils.js";
+import { getResourceLoaderName, toIdent, toPosixPath } from "../utils.js";
 import { Loader, LoaderContext, LoaderInput, ResourceNode, UILoaderOptions } from "../types.js";
 
 function toDashCase(str: string): string {
@@ -122,9 +122,9 @@ async function compile(
       .map((file) => {
         let filePath = file;
         if (filePath.startsWith('"')) {
-          filePath = `"${path
-            .relative(context.context, filePath.substring(1, file.length - 1))
-            .replace(/\\/g, "/")}"`;
+          filePath = `"${toPosixPath(
+            path.relative(context.context, filePath.substring(1, file.length - 1))
+          )}"`;
         }
         return `#include ${filePath}`;
       })

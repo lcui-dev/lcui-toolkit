@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import path from "path";
 import { Loader, LoaderContext, ModuleMetadata } from "../types.js";
+import { toPosixPath } from "../utils.js";
 
 /**
  * @see https://github.com/webpack/loader-utils/blob/master/lib/interpolateName.js
@@ -37,7 +38,7 @@ function interpolateName(
       resourcePath = parsed.dir + path.sep;
     }
 
-    directory = resourcePath.replace(/\\/g, "/").replace(/\.\.(\/)?/g, "_$1");
+    directory = toPosixPath(resourcePath).replace(/\.\.(\/)?/g, "_$1");
 
     if (directory.length === 1) {
       directory = "";

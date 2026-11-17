@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { hashContent, hashFile } from "./fs-cache.js";
+import { toPosixPath } from "../utils.js";
 
 export const MANIFEST_VERSION = 1;
 
@@ -37,10 +38,6 @@ export interface ManifestData {
   configHash: string;
   /** key 为源文件的绝对路径（统一正斜杠） */
   entries: Record<string, ManifestEntry>;
-}
-
-function normalizePath(p: string): string {
-  return p.replace(/\\/g, "/");
 }
 
 export class BuildManifest {
@@ -97,16 +94,16 @@ export class BuildManifest {
   }
 
   get(sourcePath: string): ManifestEntry | undefined {
-    return this.data.entries[normalizePath(sourcePath)];
+    return this.data.entries[toPosixPath(sourcePath)];
   }
 
   set(sourcePath: string, entry: ManifestEntry): void {
-    this.data.entries[normalizePath(sourcePath)] = entry;
+    this.data.entries[toPosixPath(sourcePath)] = entry;
     this.dirty = true;
   }
 
   remove(sourcePath: string): void {
-    const key = normalizePath(sourcePath);
+    const key = toPosixPath(sourcePath);
     if (this.data.entries[key]) {
       delete this.data.entries[key];
       this.dirty = true;

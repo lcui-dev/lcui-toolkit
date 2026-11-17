@@ -5,6 +5,7 @@ import postcssModules from "postcss-modules";
 import postcssrc from "postcss-load-config";
 import { splitCssIntoChunks } from "./css-string-chunks.js";
 import { Loader, LoaderContext, ModuleMetadata, toError } from "../types.js";
+import { toPosixPath } from "../utils.js";
 
 interface CSSLoaderOptions {
   modules?: boolean;
@@ -152,9 +153,8 @@ const CSSLoader: Loader<string | Buffer, string> = async function CSSLoader(
   });
 
   return [
-    `/** Generated from: ${path.relative(
-      path.dirname(this.resourceOutputPath),
-      this.resourcePath
+    `/** Generated from: ${toPosixPath(
+      path.relative(path.dirname(this.resourceOutputPath), this.resourcePath)
     )} */`,
     "#include <stddef.h>",
     "#include <stdlib.h>",

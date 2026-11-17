@@ -6,6 +6,17 @@ export function toIdent(str: string) {
   return str.replace(/[^a-zA-Z0-9]/g, "_").replace(/_{2,}/g, "_");
 }
 
+/**
+ * 把路径统一成正斜杠形式，用于写入生成的源码与注释。
+ *
+ * 生成文本（C `#include`、ESM import、注释）不应跟随宿主平台分隔符，
+ * 否则 Windows 上生成的产物无法在 Linux 下编译。这里无条件把 `\` 转成
+ * `/`，因此也能处理由其它平台生成、当前平台读取的缓存路径。
+ */
+export function toPosixPath(p: string) {
+  return p.replace(/\\/g, "/");
+}
+
 export function getResourceLoaderName(fileName: string, defaultComponentName?: string) {
   const ident = snakeCase(defaultComponentName || fileName);
   return `ui_load_${ident}_resources`;
@@ -29,7 +40,7 @@ export function parsePageRoute(context: string, filePath: string) {
   const ident = snakeCase(`${dir || "root"}_${name}`);
   // Convert path, e.g. "/[foo]/bar" to "/:foo/bar"
   return {
-    path: `/${dir.replaceAll(path.win32.sep, "/").replace(/\[([^\]]+)\]/g, ":$1")}`,
+    path: `/${toPosixPath(dir).replace(/\[([^\]]+)\]/g, ":$1")}`,
     ident,
   };
 }
