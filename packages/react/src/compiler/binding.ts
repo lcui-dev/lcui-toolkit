@@ -270,7 +270,7 @@ function compileObjectInitializer(obj: ObjectBinding) {
       if (init.text === "NULL") {
         return "NULL";
       }
-      return `strdup2(${init.text})`;
+      return `y_strdup(${init.text})`;
     case SyntaxKind.NumericLiteral:
       return init.text;
     case SyntaxKind.NewExpression:
