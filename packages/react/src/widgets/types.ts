@@ -1,80 +1,156 @@
-import type React from "react";
+export * from "./attributes/index.js";
 
-export interface WidgetBaseAttributes {
-  $ref?: string | { name: string; current: any };
-  className?: string;
-  children?: any;
-  [x: string]: any;
-}
-
-export interface WidgetAttributes extends WidgetBaseAttributes {
-  type?: string;
-}
-
-export interface LinkAttributes extends WidgetBaseAttributes {
-  href?: string;
-}
-
-export interface TextInputAttributes extends WidgetBaseAttributes {
-  placeholder?: string;
-  /**
-   * 文本变化事件。textinput widget 在内部消化用户输入（`UI_EVENT_TEXTINPUT`）
-   * 并更新文本内容后，对外派发 `"change"` 事件。
-   *
-   * 值既可以是 React 风格的 form 事件回调，也可以是 C 函数名（string）。
-   */
-  onChange?: React.FormEventHandler<HTMLElement> | string;
-}
-
-export interface ScrollbarAttributes extends WidgetBaseAttributes {
-  orientation?: "horizontal" | "vertical";
-}
-
-export interface RouterLinkAttributes extends WidgetBaseAttributes {
-  to: string;
-  exact?: "exact" | "";
-  "exact-active-class"?: string;
-  "active-class"?: string;
-}
-
-export interface RouterViewAttributes extends WidgetBaseAttributes {
-  /** @see https://router.vuejs.org/zh/guide/essentials/named-views.html */
-  name?: string;
-}
+import type * as A from "./attributes/index.js";
 
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
-      widget: WidgetAttributes;
-      textinput: TextInputAttributes;
-      scrollbar: ScrollbarAttributes;
-      scrollarea: WidgetBaseAttributes;
-      "scrollarea-content": WidgetBaseAttributes;
-      "router-link": RouterLinkAttributes;
-      "router-view": RouterViewAttributes;
+      widget: A.WidgetAttributes;
+      textinput: A.TextInputAttributes;
+      checkbox: A.CheckboxAttributes;
+      "radio-group": A.RadioGroupAttributes;
+      "radio-group-item": A.RadioGroupItemAttributes;
+      "input-group": A.InputGroupAttributes;
+      "input-group-addon": A.InputGroupAddonAttributes;
+      "input-group-text": A.InputGroupTextAttributes;
+      "input-group-kbd": A.InputGroupKbdAttributes;
+      "progress-label": A.ProgressLabelAttributes;
+      "progress-value": A.ProgressValueAttributes;
+      spinner: A.SpinnerAttributes;
+      "spinner-content": A.SpinnerContentAttributes;
+      shimmer: A.ShimmerAttributes;
+      "shimmer-content": A.ShimmerContentAttributes;
+      scrollbar: A.ScrollbarAttributes;
+      badge: A.BadgeAttributes;
+      card: A.CardAttributes;
+      "card-header": A.CardHeaderAttributes;
+      "card-title": A.CardTitleAttributes;
+      "card-description": A.CardDescriptionAttributes;
+      "card-action": A.CardActionAttributes;
+      "card-content": A.CardContentAttributes;
+      "card-footer": A.CardFooterAttributes;
+      item: A.ItemAttributes;
+      "item-media": A.ItemMediaAttributes;
+      "item-content": A.ItemContentAttributes;
+      "item-title": A.ItemTitleAttributes;
+      "item-description": A.ItemDescriptionAttributes;
+      "item-actions": A.ItemActionsAttributes;
+      empty: A.EmptyAttributes;
+      "empty-header": A.EmptyHeaderAttributes;
+      "empty-media": A.EmptyMediaAttributes;
+      "empty-title": A.EmptyTitleAttributes;
+      "empty-description": A.EmptyDescriptionAttributes;
+      "empty-content": A.EmptyContentAttributes;
+      "empty-action": A.EmptyActionAttributes;
+      field: A.FieldAttributes;
+      "field-set": A.FieldSetAttributes;
+      "field-legend": A.FieldLegendAttributes;
+      "field-group": A.FieldGroupAttributes;
+      "field-label": A.FieldLabelAttributes;
+      "field-description": A.FieldDescriptionAttributes;
+      "field-separator": A.FieldSeparatorAttributes;
+      "field-content": A.FieldContentAttributes;
+      "field-title": A.FieldTitleAttributes;
+      attachment: A.AttachmentAttributes;
+      "attachment-media": A.AttachmentMediaAttributes;
+      "attachment-content": A.AttachmentContentAttributes;
+      "attachment-title": A.AttachmentTitleAttributes;
+      "attachment-description": A.AttachmentDescriptionAttributes;
+      "attachment-actions": A.AttachmentActionsAttributes;
+      "attachment-trigger": A.AttachmentTriggerAttributes;
+      "attachment-group": A.AttachmentGroupAttributes;
+      "button-group": A.ButtonGroupAttributes;
+      "button-group-text": A.ButtonGroupTextAttributes;
+      "button-group-separator": A.ButtonGroupSeparatorAttributes;
+      alert: A.AlertAttributes;
+      "alert-content": A.AlertContentAttributes;
+      "alert-title": A.AlertTitleAttributes;
+      "alert-description": A.AlertDescriptionAttributes;
+      "alert-action": A.AlertActionAttributes;
+      breadcrumb: A.BreadcrumbAttributes;
+      "breadcrumb-list": A.BreadcrumbListAttributes;
+      "breadcrumb-item": A.BreadcrumbItemAttributes;
+      "breadcrumb-link": A.BreadcrumbLinkAttributes;
+      "breadcrumb-page": A.BreadcrumbPageAttributes;
+      "breadcrumb-separator": A.BreadcrumbSeparatorAttributes;
+      "breadcrumb-ellipsis": A.BreadcrumbEllipsisAttributes;
+      "sidebar-provider": A.SidebarProviderAttributes;
+      sidebar: A.SidebarAttributes;
+      "sidebar-trigger": A.SidebarTriggerAttributes;
+      "sidebar-rail": A.SidebarRailAttributes;
+      "sidebar-header": A.SidebarHeaderAttributes;
+      "sidebar-footer": A.SidebarFooterAttributes;
+      "sidebar-content": A.SidebarContentAttributes;
+      "sidebar-group": A.SidebarGroupAttributes;
+      "sidebar-group-label": A.SidebarGroupLabelAttributes;
+      "sidebar-group-action": A.SidebarGroupActionAttributes;
+      "sidebar-group-content": A.SidebarGroupContentAttributes;
+      "sidebar-menu": A.SidebarMenuAttributes;
+      "sidebar-menu-item": A.SidebarMenuItemAttributes;
+      "sidebar-menu-action": A.SidebarMenuActionAttributes;
+      "sidebar-menu-sub": A.SidebarMenuSubAttributes;
+      "sidebar-menu-sub-item": A.SidebarMenuSubItemAttributes;
+      "sidebar-menu-badge": A.SidebarMenuBadgeAttributes;
+      scrollarea: A.ScrollAreaAttributes;
+      "scrollarea-content": A.ScrollAreaContentAttributes;
+      "dialog-trigger": A.DialogTriggerAttributes;
+      "dialog-overlay": A.DialogOverlayAttributes;
+      "dialog-content": A.DialogContentAttributes;
+      "dialog-header": A.DialogHeaderAttributes;
+      "dialog-title": A.DialogTitleAttributes;
+      "dialog-description": A.DialogDescriptionAttributes;
+      "dialog-footer": A.DialogFooterAttributes;
+      "alert-dialog": A.AlertDialogAttributes;
+      "alert-dialog-trigger": A.AlertDialogTriggerAttributes;
+      "alert-dialog-overlay": A.AlertDialogOverlayAttributes;
+      "alert-dialog-content": A.AlertDialogContentAttributes;
+      "alert-dialog-header": A.AlertDialogHeaderAttributes;
+      "alert-dialog-media": A.AlertDialogMediaAttributes;
+      "alert-dialog-title": A.AlertDialogTitleAttributes;
+      "alert-dialog-description": A.AlertDialogDescriptionAttributes;
+      "alert-dialog-footer": A.AlertDialogFooterAttributes;
+      "alert-dialog-cancel": A.AlertDialogCancelAttributes;
+      "alert-dialog-action": A.AlertDialogActionAttributes;
+      "dropdown-menu": A.DropdownMenuAttributes;
+      "dropdown-menu-trigger": A.DropdownMenuTriggerAttributes;
+      "dropdown-menu-content": A.DropdownMenuContentAttributes;
+      "dropdown-menu-group": A.DropdownMenuGroupAttributes;
+      "dropdown-menu-label": A.DropdownMenuLabelAttributes;
+      "dropdown-menu-item": A.DropdownMenuItemAttributes;
+      "dropdown-menu-checkbox-item": A.DropdownMenuCheckboxItemAttributes;
+      "dropdown-menu-radio-group": A.DropdownMenuRadioGroupAttributes;
+      "dropdown-menu-radio-item": A.DropdownMenuRadioItemAttributes;
+      "dropdown-menu-separator": A.DropdownMenuSeparatorAttributes;
+      "dropdown-menu-shortcut": A.DropdownMenuShortcutAttributes;
+      "dropdown-menu-sub": A.DropdownMenuSubAttributes;
+      "dropdown-menu-sub-trigger": A.DropdownMenuSubTriggerAttributes;
+      "dropdown-menu-sub-content": A.DropdownMenuSubContentAttributes;
+      popover: A.PopoverAttributes;
+      "popover-trigger": A.PopoverTriggerAttributes;
+      "popover-content": A.PopoverContentAttributes;
+      "popover-header": A.PopoverHeaderAttributes;
+      "popover-title": A.PopoverTitleAttributes;
+      "popover-description": A.PopoverDescriptionAttributes;
+      tooltip: A.TooltipAttributes;
+      "tooltip-trigger": A.TooltipTriggerAttributes;
+      "tooltip-content": A.TooltipContentAttributes;
+      "select-trigger": A.SelectTriggerAttributes;
+      "select-value": A.SelectValueAttributes;
+      "select-content": A.SelectContentAttributes;
+      "select-group": A.SelectGroupAttributes;
+      "select-label": A.SelectLabelAttributes;
+      "select-separator": A.SelectSeparatorAttributes;
+      "select-item": A.SelectItemAttributes;
+      portal: A.PortalAttributes;
+      accordion: A.AccordionAttributes;
+      "accordion-item": A.AccordionItemAttributes;
+      "accordion-trigger": A.AccordionTriggerAttributes;
+      "accordion-content": A.AccordionContentAttributes;
+      collapsible: A.CollapsibleAttributes;
+      "collapsible-trigger": A.CollapsibleTriggerAttributes;
+      "collapsible-content": A.CollapsibleContentAttributes;
+      "router-link": A.RouterLinkAttributes;
+      "router-view": A.RouterViewAttributes;
     }
   }
-}
-
-export type WidgetProps = WidgetAttributes;
-export type WidgetBaseProps = WidgetBaseAttributes;
-export type LinkProps = LinkAttributes;
-export type RouterViewProps = RouterViewAttributes;
-export type ScrollbarProps = ScrollbarAttributes;
-
-export type FunctionWidget<T = WidgetBaseProps> = ((props: T) => React.ReactElement) & {
-  shouldPreRender?: boolean;
-};
-
-export interface RouterLinkProps extends WidgetBaseProps {
-  to: string;
-  exact?: boolean;
-  exactActiveClass?: string;
-  activeClass?: string;
-}
-
-export interface TextInputProps extends WidgetBaseProps {
-  placeholder?: string;
-  /** 同 TextInputAttributes.onChange，详见其 JSDoc。 */
-  onChange?: React.FormEventHandler<HTMLElement> | string;
 }

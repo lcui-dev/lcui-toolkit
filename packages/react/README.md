@@ -37,6 +37,59 @@ LCUI is not a browser engine, and functions such as text display and input need 
   <div>
 ```
 
+## Widget components
+
+`@lcui/react` exports a component for every documented LCUI widget. Every
+component is a compile-time wrapper that renders the matching LCUI tag and
+keeps `shouldPreRender` enabled for `@lcui/cli`.
+
+- Form and feedback: `Text`, `TextInput`, `Label`, `Checkbox`, `RadioGroup`,
+  `RadioGroupItem`, `Button`, `Icon`, `Progress`, `Spinner`, `Shimmer`,
+  `InputGroup*`, `Field*`
+- Layout: `Card*`, `Item*`, `Empty*`, `Attachment*`, `ButtonGroup*`, `Badge`,
+  `Alert*`
+- Navigation: `Breadcrumb*`, `Sidebar*`, `ScrollArea`, `ScrollAreaContent`,
+  `Scrollbar`
+- Overlays: `Dialog*`, `AlertDialog*`, `DropdownMenu*`, `Popover*`, `Tooltip*`,
+  `Select*`, `Portal`
+- Disclosure: `Accordion*`, `Collapsible*`
+
+Props written in camelCase are converted to LCUI attribute names at compile
+time: `defaultValue` → `default-value`, `defaultOpen` → `default-open`,
+`sideOffset` → `side-offset`. `className` becomes `class` and `htmlFor`
+becomes `for`.
+
+## render prop
+
+Every component accepts `render`. For normal widgets it replaces the root
+element; for trigger widgets it replaces the trigger content while keeping the
+prototype root that LCUI binds to.
+
+```tsx
+<Button render={<a href="#" />} variant="secondary" size="sm">
+  Login
+</Button>
+
+<AlertDialogTrigger render={<Button variant="outline">Show Dialog</Button>} />
+```
+
+## Variant class helpers
+
+`buttonVariants`, `badgeVariants`, `alertVariants`, `itemVariants` and
+`cardVariants` return the class names used by LCUI's theme layer, so the same
+visual style can be applied to a plain element:
+
+```tsx
+import { buttonVariants } from "@lcui/react";
+
+<a href="#" className={buttonVariants({ variant: "secondary", size: "sm" })}>
+  Login
+</a>;
+```
+
+The class variants for `Badge`, `Alert`, `Item` and `Card` require a matching
+LCUI theme version. `Button` class variants have been available longer.
+
 ## String event handlers
 
 In LCUI projects an event handler can be the name of a C function instead of a

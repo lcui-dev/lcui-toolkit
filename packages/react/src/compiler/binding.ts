@@ -122,6 +122,7 @@ const typeNameMap: Partial<Record<CType, string>> = {
   [CType.Double]: "double",
   [CType.Size]: "size_t",
   [CType.Int]: "int",
+  [CType.Boolean]: "bool",
   [CType.String]: "char*",
 };
 
@@ -626,8 +627,12 @@ export function isString(obj: ObjectBinding) {
   return obj.__meta__.type === CType.String;
 }
 
-function createBooleanBinding(name: string) {
-  return createObjectBinding({ name, type: CType.Boolean });
+function createBooleanBinding(name: string, value = false) {
+  return createObjectBinding({
+    name,
+    type: CType.Boolean,
+    initializer: createNumericLiteral(value ? 1 : 0, CType.Int),
+  });
 }
 
 function createNumericBinding(name: string, value: number, type: CNumericType = CType.Int) {

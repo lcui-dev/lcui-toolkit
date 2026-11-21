@@ -2,17 +2,20 @@ import React, { ReactElement, ReactNode, isValidElement } from "react";
 import { snakeCase } from "change-case-all";
 import {
   call,
+  CType,
   ComponentContext,
   createFunctionContext,
   getComponentContext,
   setComponentContext,
   isObjectBinding,
   ObjectBinding,
+  stringifyValue,
   compiler,
 } from "./binding.js";
 import fmt from "../runtime/fmt.js";
 import { JSXObjectBinding } from "./jsx-runtime.js";
 import { RouterView, Widget } from "../widgets/index.js";
+import { toWidgetAttributeName } from "../widgets/factory.js";
 
 type ComponentFunction<T = {}> = {
   displayName?: string;
@@ -198,24 +201,22 @@ function transformReactNode(el: ReactNode, isRoot = false): Node | undefined {
   }
 
   const props = el.props as Record<string, any>;
-  const attrMap: Record<string, string> = {
-    className: "class",
-    $ref: "ref",
-  };
   const handlerNames: string[] = [];
+  const dynamicAttributes: Array<[string, ObjectBinding]> = [];
 
   Object.keys(props).forEach((propKey) => {
-    let key = propKey;
-    const value = props[key];
+    const value = props[propKey];
 
-    if (key in attrMap) {
-      key = attrMap[key];
-    }
-    if (key === "children" || key === "style") {
+    if (propKey === "children" || propKey === "style" || propKey === "render") {
       return;
     }
-    if (key.startsWith("on")) {
-      handlerNames.push(key);
+    if (propKey.startsWith("on")) {
+      handlerNames.push(propKey);
+      return;
+    }
+    const key = toWidgetAttributeName(propKey);
+    if (isObjectBinding(value) && key !== "ref") {
+      dynamicAttributes.push([key, value]);
       return;
     }
     if (typeof value !== "undefined") {
@@ -241,6 +242,17 @@ function transformReactNode(el: ReactNode, isRoot = false): Node | undefined {
       throw SyntaxError(`The style attribute value must be an object, not ${typeof props.style}`);
     }
     transformNodeStyle(node, props.style);
+  }
+  if (dynamicAttributes.length > 0) {
+    const ctx = getComponentContext();
+    const ref = allocRef(ctx, node);
+    dynamicAttributes.forEach(([name, value]) => {
+      const expr =
+        value.__meta__.type === CType.Boolean
+          ? `(${value.__meta__.name} ? "true" : "false")`
+          : stringifyValue(value).__meta__.name;
+      ctx.body.push(`ui_widget_set_attr(${ref.cName}, "${name}", ${expr})`);
+    });
   }
   handlerNames.forEach((name) => {
     transformEventHandler(node, resolveLCUIEventName(name), props[name]);
