@@ -92,6 +92,16 @@ declare module "react" {
     onPaste?: React.ClipboardEventHandler<T> | string;
     onChange?: React.FormEventHandler<T> | string;
   }
+
+  /**
+   * Documentation examples sometimes use a lowercase `<button variant="...">`
+   * instead of the `Button` component. LCUI's button widget reads the same
+   * attribute, so widen the DOM type rather than rejecting those examples.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ButtonHTMLAttributes<T> {
+    variant?: "outline" | "primary" | "secondary" | "ghost" | "destructive" | "link";
+  }
 }
 
 // 仅暴露给文档/类型系统的辅助类型；不导出运行时值

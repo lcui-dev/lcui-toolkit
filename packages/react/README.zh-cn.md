@@ -42,6 +42,56 @@ LCUI 并不是浏览器引擎，像按钮、文本输入框等原生控件需要
   <div>
 ```
 
+## 部件组件
+
+`@lcui/react` 为文档中的每个 LCUI 部件提供组件。所有组件都是编译期包装，
+渲染对应的 LCUI 标签，并保持 `shouldPreRender`，供 `@lcui/cli` 展开。
+
+- 表单与反馈：`Text`、`TextInput`、`Label`、`Checkbox`、`RadioGroup`、
+  `RadioGroupItem`、`Button`、`Icon`、`Progress`、`Spinner`、`Shimmer`、
+  `InputGroup*`、`Field*`
+- 布局：`Card*`、`Item*`、`Empty*`、`Attachment*`、`ButtonGroup*`、`Badge`、
+  `Alert*`
+- 导航：`Breadcrumb*`、`Sidebar*`、`ScrollArea`、`ScrollAreaContent`、
+  `Scrollbar`
+- 浮层：`Dialog*`、`AlertDialog*`、`DropdownMenu*`、`Popover*`、`Tooltip*`、
+  `Select*`、`Portal`
+- 折叠：`Accordion*`、`Collapsible*`
+
+camelCase 属性会在编译期转换成 LCUI 属性名：`defaultValue` →
+`default-value`、`defaultOpen` → `default-open`、`sideOffset` →
+`side-offset`。`className` 会变成 `class`，`htmlFor` 会变成 `for`。
+
+## render 属性
+
+所有组件都接受 `render`。普通组件用它替换根元素；触发器组件用它替换触发器
+内容，同时保留 LCUI 绑定所需的 prototype 根节点。
+
+```tsx
+<Button render={<a href="#" />} variant="secondary" size="sm">
+  Login
+</Button>
+
+<AlertDialogTrigger render={<Button variant="outline">Show Dialog</Button>} />
+```
+
+## 变体 class helper
+
+`buttonVariants`、`badgeVariants`、`alertVariants`、`itemVariants`、
+`cardVariants` 返回 LCUI 主题层使用的 class 名称，可以把同样的视觉样式应用到
+普通元素上：
+
+```tsx
+import { buttonVariants } from "@lcui/react";
+
+<a href="#" className={buttonVariants({ variant: "secondary", size: "sm" })}>
+  Login
+</a>;
+```
+
+`Badge`、`Alert`、`Item`、`Card` 的 class 变体需要配套的 LCUI 主题版本；
+`Button` 的 class 变体早已可用。
+
 ## 字符串形态的事件处理器
 
 在 LCUI 项目里，事件处理器可以直接是 C 函数名而不是 JavaScript 回调。

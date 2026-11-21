@@ -72,10 +72,7 @@ export default function useState(initialValue: Value, valueType?: CType) {
   } else {
     switch (typeof initialValue) {
       case "boolean":
-        value = factory.createObjectBinding({
-          name: stateCName,
-          type: CType.Boolean,
-        });
+        value = factory.createBooleanBinding(stateCName, initialValue);
         break;
       case "string":
         value = factory.createStringBinding(stateCName, initialValue);

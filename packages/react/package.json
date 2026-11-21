@@ -53,7 +53,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && npm run typecheck:test",
+    "typecheck:test": "tsc -p tsconfig.test.json",
     "test": "npm run build && node --test"
   },
   "repository": {
