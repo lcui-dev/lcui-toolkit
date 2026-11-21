@@ -30,6 +30,9 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
       - name: Cache Fluent icon fonts
         uses: actions/cache@v4
         with:
