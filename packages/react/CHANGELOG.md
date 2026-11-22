@@ -1,5 +1,16 @@
 # [0.5.0](https://gitee.com/lcui-dev/react/compare/v0.4.0...v0.5.0) (2025-01-07)
 
+## 0.8.0
+
+### Minor Changes
+
+- a2b64bd: Add React components and TypeScript types for all documented LCUI widgets,
+  including `render` support and variant class helpers.
+
+### Patch Changes
+
+- 5d306c2: Use `y_strdup` instead of the removed `strdup2` when generating C string state initializers.
+
 ## 0.7.0
 
 ### Minor Changes
