@@ -1,5 +1,14 @@
 ## [1.2.2](https://github.com/lc-ui/lcui-cli/compare/v1.2.1...v1.2.2) (2025-01-26)
 
+## 2.0.1
+
+### Patch Changes
+
+- f2c0240: Generated C and ESM paths should always use `/`, regardless of the host platform. `main.h` used to contain Windows backslashes, so a project generated on Windows could not be compiled on Linux. All generators now go through the shared `toPosixPath()` helper.
+- Updated dependencies [a2b64bd]
+- Updated dependencies [5d306c2]
+  - @lcui/react@0.8.0
+
 ## 2.0.0
 
 ### Major Changes
