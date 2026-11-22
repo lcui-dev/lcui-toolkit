@@ -30,6 +30,9 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      - name: Remove legacy npm auth setting
+        run: sed -i '/^always-auth=/d' "${NPM_CONFIG_USERCONFIG}"
+
       - name: Upgrade npm
         run: npm install -g npm@latest
 
